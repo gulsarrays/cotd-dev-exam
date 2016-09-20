@@ -1,0 +1,165 @@
+{% extends 'CatchOfTheDayDevExamBundle::base.html.twig' %}
+
+{% block title %}{{ parent() }} - Welcome{% endblock title %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('bundles/catchofthedaydevexam/css/views/Default/index.css') }}"
+{% endblock stylesheets %}
+
+{% block body %}
+    <div class="container">
+        <div class="page-header">
+            <h3>
+                <img src="{{ asset('bundles/catchofthedaydevexam/images/cotd-logo.png') }}" />
+                CatchOfTheDay Developer Exam
+            </h3>
+        </div>
+                
+        
+
+
+
+        <div class="row">
+            <div class="col-md-12">
+                <h4 class="app-header">TODO List Application (Edit)</h4>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="well">
+                    <form class="form-horizontal" method = "post" action="{{ path('add') }}">
+                        <h5>Add New Item</h5>
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <input type="text" class="form-control" id="todo-text-input" name="todo-text" placeholder="Text"  value="{{ itemName }}">
+                                <input type="hidden" class="form-control" id="todo-text-input_id" name="todo-text-id" placeholder="Text" value="{{ itemId }}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-primary">
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped table-hover">
+                    <colgroup>
+                        <col style="width: 120px" />
+                        <col style="width: 200px" />
+                        <col />
+                        <col style="width: 135px" />
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Created Timestamp</th>
+                        <th>Text</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in pagination if not item.complete %}
+{#                    {% for item in items if not item.complete %}#}
+{#                    {% for item in items %}#}
+                        <tr>
+                            <td>{{ item.id }}</td>
+                            <td>{{ item.created|date('d/m/Y g:i a') }}</td>
+                            <td>
+                                <a href="{{ path('edit', { 'itemId': item.id }) }}" class="btn-edit" id="edit_{{item.id}}">
+                                {{ item.text }}
+                                </a>
+                            </td>
+                            <td>
+{#                                <a href="{{ path('mark_as_complete', { 'itemId': item.id }) }}" class="btn btn-sm btn-success">#}
+                                <a href="{{ path('mark_as_complete', { 'itemId': item.id }) }}" class="btn btn-sm btn-success btn-mark-as-complete" id="{{item.id}}">
+                                    Mark as Complete
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+                    
+        <div class="col-md-12 navigation">
+            {{ knp_pagination_render(pagination) }}
+        </div>
+        
+    </div>
+{% endblock body %}
+
+{% block javascripts %}
+    
+    {{ parent() }}
+    
+<script type="text/javascript">
+    //<![CDATA[
+
+$(document).ready(function () {
+    
+    
+    $('body').on('submit', '.form-horizontal', function (e) {
+        e.preventDefault();
+
+        if($('#todo-text-input').val() == '') {
+            alert("Input box must NOT be empty ");
+            return false;
+        }
+
+        $.ajax({
+            type: $(this).attr('method'),
+            url: $(this).attr('action'),
+            data: $(this).serialize()+'&ajax=1',
+            dataType: 'json',
+            async: false,
+            success: function(data) {                
+                alert("Data updated successfully!!!");
+                $(location).attr('href', '/');
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert(errorThrown);
+            }
+        })
+    });
+    
+    $('body').on('click', '.btn-mark-as-complete', function (e) {
+
+        e.preventDefault();
+              
+         $.ajax({
+            type: 'GET',
+            url: $(this).attr('href'),
+            data: 'ajax=1',
+            dataType: 'json',
+            async: false,
+            success: function(data) {  
+                alert("Data successfully Marked as COMPLETE !!!");
+                $(location).attr('href', '/');
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert(errorThrown);
+            }
+        });
+        
+        
+        
+    });
+    
+
+});
+
+
+
+//]]>
+    </script>
+{% endblock %}
